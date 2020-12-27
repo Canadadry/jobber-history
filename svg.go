@@ -1,26 +1,41 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"text/template"
-	"time"
 )
 
 const (
 	tmpl = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-{{ range $key, $value := . }}{{ range $value }}	<rect x="{{.Start}}" y="10" width="{{.Len}}" height="10" style="fill:{{.Color}}" />
-{{ end }}	<text x="0" y="18" font-family="Verdana" font-size="10">
-		{{ $key }}
+{{ range . }}{{ range .Rects }}	<rect x="{{.Start}}" y="{{.Y}}" width="{{.Len}}" height="{{.Height}}" style="fill:{{.Color}}" />
+{{ end }}	<text x="0" y="{{.TextY}}" font-family="Verdana" font-size="10">
+		{{ .Name }}
 	</text>
 {{ end }}</svg>`
 )
 
+type SvgLine struct {
+	Rects []Rect
+	Name  string
+	TextY int
+}
+
+type Rect struct {
+	Start  float64
+	Len    float64
+	Color  string
+	Height int
+	Y      int
+}
+
 type Svg struct {
-	Green string
-	Red   string
+	Green       string
+	Red         string
+	LineHeight  int
+	MarginTop   int
+	TextYOffset int
 }
 
 func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
@@ -28,9 +43,16 @@ func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	data := map[string][]Rect{}
+	data := []SvgLine{}
+	y := s.MarginTop
 	for program, ln := range lines {
-		data[program] = s.convert(ln)
+		l := SvgLine{
+			Rects: s.convert(ln, y),
+			Name:  program,
+			TextY: y + s.TextYOffset,
+		}
+		data = append(data, l)
+		y = y + s.LineHeight
 	}
 	err = tmpl.Execute(out, data)
 	if err != nil {
@@ -39,18 +61,11 @@ func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
 	return nil
 }
 
-type Rect struct {
-	Start float64
-	Len   float64
-	Color string
-}
-
-func (s Svg) convert(lines []Line) []Rect {
+func (s Svg) convert(lines []Line, y int) []Rect {
 	greenRed := ternary(s.Green, s.Red)
 
 	timestamps := []int64{}
 	for _, l := range lines {
-		fmt.Printf("%s : %d\n", l.Date.Format(time.RFC3339), l.Date.Unix())
 		timestamps = append(timestamps, l.Date.Unix())
 	}
 	fromMin := float64(timestamps[len(timestamps)-1])
@@ -64,12 +79,13 @@ func (s Svg) convert(lines []Line) []Rect {
 		start := toSvgCoord(float64(timestamps[i+0]))
 		end := toSvgCoord(float64(timestamps[i+1]))
 		floatCoord = append(floatCoord, Rect{
-			Start: start,
-			Len:   end - start,
-			Color: greenRed(lines[i].Success),
+			Start:  start,
+			Len:    end - start,
+			Color:  greenRed(lines[i].Success),
+			Height: s.LineHeight,
+			Y:      y,
 		})
 	}
-	fmt.Printf("convert %#v\n", floatCoord)
 	return floatCoord
 }
 
@@ -83,7 +99,6 @@ func ternary(ifTrue, ifFalse string) func(bool) string {
 }
 
 func remap(fromMin, fromMax, toMin, toMax float64) func(float64) float64 {
-	fmt.Printf("from %g - %g \nto %g - %g\n", fromMin, fromMax, toMin, toMax)
 	return func(in float64) float64 {
 		absolute := (in - fromMin) / (fromMax - fromMin)
 		return absolute*(toMax-toMin) + toMin
