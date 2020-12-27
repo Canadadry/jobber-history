@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"jobber-history/parser"
-	"jobber-history/svg"
+	"github.com/canadadry/jobber-history/parser"
+	"github.com/canadadry/jobber-history/svg"
 	"os"
 	"time"
 )

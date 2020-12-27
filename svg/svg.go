@@ -1,8 +1,8 @@
 package svg
 
 import (
+	"github.com/canadadry/jobber-history/parser"
 	"io"
-	"jobber-history/parser"
 	"text/template"
 )
 

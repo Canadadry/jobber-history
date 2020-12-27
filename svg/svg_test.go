@@ -2,7 +2,7 @@ package svg
 
 import (
 	"bytes"
-	"jobber-history/parser"
+	"github.com/canadadry/jobber-history/parser"
 	"strings"
 	"testing"
 	"time"
