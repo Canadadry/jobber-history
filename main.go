@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -80,7 +81,6 @@ func readFile(f io.Reader) (map[string][]Line, error) {
 
 func filter(min int, allAfter time.Time) func([]Line) []Line {
 	return func(in []Line) []Line {
-		fmt.Println("filter")
 		sort.Sort(&lineSorter{
 			Lines: in,
 			By:    ByDecrisingDate,
@@ -91,27 +91,28 @@ func filter(min int, allAfter time.Time) func([]Line) []Line {
 				last = i + 1
 			}
 		}
-		fmt.Println(last)
 		if last < min {
 			last = min
 		}
-		fmt.Println(last)
 		if last > len(in) {
 			last = len(in)
 		}
-		fmt.Println(last)
 		return in[:last]
 	}
 }
 
 func run() error {
 	var (
-		in  string
-		out string
+		in   string
+		out  string
+		min  int
+		hour int
 	)
 
 	flag.StringVar(&in, "in", "", "input history.log file")
 	flag.StringVar(&out, "out", "", "output svg file")
+	flag.IntVar(&min, "min", 10, "minimal number of line to concider")
+	flag.IntVar(&hour, "hour", 0, "take all line from the last X hour this date")
 
 	flag.Parse()
 
@@ -133,10 +134,14 @@ func run() error {
 	filtered := map[string][]Line{}
 
 	for program, l := range lines {
-		filtered[program] = filter(10, time.Now().Truncate(time.Hour*24))(l)
+		filtered[program] = filter(min, time.Now().Truncate(time.Hour*time.Duration(hour)))(l)
 	}
 
-	fmt.Println(len(lines))
+	str, err := json.MarshalIndent(filtered, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Can encode response to json %w", err)
+	}
+	fmt.Println(string(str))
 
 	return nil
 }
