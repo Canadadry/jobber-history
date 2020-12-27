@@ -11,21 +11,21 @@ const (
 	tmpl = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-{{ range $key, $value := . }}{{ range $value }}	<rect x="{{.Start}}" y="10" width="{{.Len}}" height="10" style="fill:rgb(0,0,255)" />
+{{ range $key, $value := . }}{{ range $value }}	<rect x="{{.Start}}" y="10" width="{{.Len}}" height="10" style="fill:{{.Color}}" />
 {{ end }}	<text x="0" y="18" font-family="Verdana" font-size="10">
 		{{ $key }}
 	</text>
 {{ end }}</svg>`
 )
 
-func ToSvg(lines map[string][]Line) (string, error) {
+func ToSvg(lines map[string][]Line, green string, red string) (string, error) {
 	tmpl, err := template.New("svg").Parse(tmpl)
 	if err != nil {
 		return "", err
 	}
 	data := map[string][]Rect{}
 	for program, ln := range lines {
-		data[program] = convert(ln)
+		data[program] = convert(ln, green, red)
 	}
 	out := bytes.Buffer{}
 	err = tmpl.Execute(&out, data)
@@ -38,9 +38,10 @@ func ToSvg(lines map[string][]Line) (string, error) {
 type Rect struct {
 	Start float64
 	Len   float64
+	Color string
 }
 
-func convert(lines []Line) []Rect {
+func convert(lines []Line, green string, red string) []Rect {
 	timestamps := []int64{}
 	for _, l := range lines {
 		fmt.Printf("%s : %d\n", l.Date.Format(time.RFC3339), l.Date.Unix())
@@ -59,6 +60,7 @@ func convert(lines []Line) []Rect {
 		floatCoord = append(floatCoord, Rect{
 			Start: start,
 			Len:   end - start,
+			Color: green,
 		})
 	}
 	fmt.Printf("convert %#v\n", floatCoord)

@@ -7,6 +7,10 @@ import (
 )
 
 func TestToSvg(t *testing.T) {
+
+	green := "rgb(0,255,0)"
+	red := "rgb(255,0,0)"
+
 	tests := []struct {
 		in  string
 		out string
@@ -24,7 +28,7 @@ func TestToSvg(t *testing.T) {
 			out: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-	<rect x="150" y="10" width="150" height="10" style="fill:rgb(0,0,255)" />
+	<rect x="150" y="10" width="150" height="10" style="fill:rgb(0,255,0)" />
 	<text x="0" y="18" font-family="Verdana" font-size="10">
 		test
 	</text>
@@ -37,8 +41,8 @@ func TestToSvg(t *testing.T) {
 			out: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-	<rect x="150" y="10" width="75" height="10" style="fill:rgb(0,0,255)" />
-	<rect x="225" y="10" width="75" height="10" style="fill:rgb(0,0,255)" />
+	<rect x="150" y="10" width="75" height="10" style="fill:rgb(0,255,0)" />
+	<rect x="225" y="10" width="75" height="10" style="fill:rgb(0,255,0)" />
 	<text x="0" y="18" font-family="Verdana" font-size="10">
 		test
 	</text>
@@ -57,7 +61,7 @@ func TestToSvg(t *testing.T) {
 			filtered[program] = filter(100, time.Now())(l)
 		}
 
-		svg, err := ToSvg(filtered)
+		svg, err := ToSvg(filtered, green, red)
 		if err != nil {
 			t.Fatalf("[%d] failed %v", i, err)
 		}
