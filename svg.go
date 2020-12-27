@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 	"text/template"
 	"time"
 )
@@ -18,21 +18,25 @@ const (
 {{ end }}</svg>`
 )
 
-func ToSvg(lines map[string][]Line, green string, red string) (string, error) {
+type Svg struct {
+	Green string
+	Red   string
+}
+
+func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
 	tmpl, err := template.New("svg").Parse(tmpl)
 	if err != nil {
-		return "", err
+		return err
 	}
 	data := map[string][]Rect{}
 	for program, ln := range lines {
-		data[program] = convert(ln, green, red)
+		data[program] = s.convert(ln)
 	}
-	out := bytes.Buffer{}
-	err = tmpl.Execute(&out, data)
+	err = tmpl.Execute(out, data)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return out.String(), nil
+	return nil
 }
 
 type Rect struct {
@@ -41,8 +45,8 @@ type Rect struct {
 	Color string
 }
 
-func convert(lines []Line, green string, red string) []Rect {
-	greenRed := ternary(green, red)
+func (s Svg) convert(lines []Line) []Rect {
+	greenRed := ternary(s.Green, s.Red)
 
 	timestamps := []int64{}
 	for _, l := range lines {

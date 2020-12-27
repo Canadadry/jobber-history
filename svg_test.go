@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 	"time"
@@ -8,8 +9,8 @@ import (
 
 func TestToSvg(t *testing.T) {
 
-	green := "rgb(0,255,0)"
-	red := "rgb(255,0,0)"
+	Green := "rgb(0,255,0)"
+	Red := "rgb(255,0,0)"
 
 	tests := []struct {
 		in  string
@@ -89,13 +90,14 @@ func TestToSvg(t *testing.T) {
 			filtered[program] = filter(100, time.Now())(l)
 		}
 
-		svg, err := ToSvg(filtered, green, red)
+		buf := bytes.Buffer{}
+		err = Svg{Green, Red}.Convert(filtered, &buf)
 		if err != nil {
 			t.Fatalf("[%d] failed %v", i, err)
 		}
 
-		if svg != tt.out {
-			t.Fatalf("[%d] failed got \n%s\n expected \n%s\n", i, svg, tt.out)
+		if buf.String() != tt.out {
+			t.Fatalf("[%d] failed got \n%s\n expected \n%s\n", i, buf.String(), tt.out)
 		}
 	}
 }
