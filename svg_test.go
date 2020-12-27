@@ -48,6 +48,34 @@ func TestToSvg(t *testing.T) {
 	</text>
 </svg>`,
 		},
+		{
+			in: `2020/12/06 18:00:01 test-1607277601 ended failed after 3.29207ms
+2020/12/07 18:00:01 test-1607277601 ended failed after 3.29207ms
+2020/12/08 18:00:01 test-1607277601 ended succesfully after 3.29207ms`,
+			out: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+	<rect x="150" y="10" width="75" height="10" style="fill:rgb(0,255,0)" />
+	<rect x="225" y="10" width="75" height="10" style="fill:rgb(255,0,0)" />
+	<text x="0" y="18" font-family="Verdana" font-size="10">
+		test
+	</text>
+</svg>`,
+		},
+		{
+			in: `2020/12/06 18:00:01 test-1607277601 ended succesfully after 3.29207ms
+2020/12/07 18:00:01 test-1607277601 ended failed after 3.29207ms
+2020/12/08 18:00:01 test-1607277601 ended succesfully after 3.29207ms`,
+			out: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 300 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+	<rect x="150" y="10" width="75" height="10" style="fill:rgb(0,255,0)" />
+	<rect x="225" y="10" width="75" height="10" style="fill:rgb(255,0,0)" />
+	<text x="0" y="18" font-family="Verdana" font-size="10">
+		test
+	</text>
+</svg>`,
+		},
 	}
 
 	for i, tt := range tests {

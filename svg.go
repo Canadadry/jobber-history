@@ -42,6 +42,8 @@ type Rect struct {
 }
 
 func convert(lines []Line, green string, red string) []Rect {
+	greenRed := ternary(green, red)
+
 	timestamps := []int64{}
 	for _, l := range lines {
 		fmt.Printf("%s : %d\n", l.Date.Format(time.RFC3339), l.Date.Unix())
@@ -60,11 +62,20 @@ func convert(lines []Line, green string, red string) []Rect {
 		floatCoord = append(floatCoord, Rect{
 			Start: start,
 			Len:   end - start,
-			Color: green,
+			Color: greenRed(lines[i].Success),
 		})
 	}
 	fmt.Printf("convert %#v\n", floatCoord)
 	return floatCoord
+}
+
+func ternary(ifTrue, ifFalse string) func(bool) string {
+	return func(s bool) string {
+		if s {
+			return ifTrue
+		}
+		return ifFalse
+	}
 }
 
 func remap(fromMin, fromMax, toMin, toMax float64) func(float64) float64 {
