@@ -1,10 +1,10 @@
 package main
 
 import (
-	"app/parser"
-	"app/svg"
 	"flag"
 	"fmt"
+	"jobber-history/parser"
+	"jobber-history/svg"
 	"os"
 	"time"
 )

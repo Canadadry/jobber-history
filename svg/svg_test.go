@@ -1,8 +1,8 @@
 package svg
 
 import (
-	"app/parser"
 	"bytes"
+	"jobber-history/parser"
 	"strings"
 	"testing"
 	"time"

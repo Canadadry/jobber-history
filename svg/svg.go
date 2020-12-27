@@ -1,8 +1,8 @@
 package svg
 
 import (
-	"app/parser"
 	"io"
+	"jobber-history/parser"
 	"text/template"
 )
 
