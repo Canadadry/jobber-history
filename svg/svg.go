@@ -1,6 +1,7 @@
-package main
+package svg
 
 import (
+	"app/parser"
 	"io"
 	"text/template"
 )
@@ -38,7 +39,7 @@ type Svg struct {
 	TextYOffset int
 }
 
-func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
+func (s Svg) Convert(lines map[string][]parser.Line, out io.Writer) error {
 	tmpl, err := template.New("svg").Parse(tmpl)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func (s Svg) Convert(lines map[string][]Line, out io.Writer) error {
 	return nil
 }
 
-func (s Svg) convert(lines []Line, y int) []Rect {
+func (s Svg) convert(lines []parser.Line, y int) []Rect {
 	greenRed := ternary(s.Green, s.Red)
 
 	timestamps := []int64{}

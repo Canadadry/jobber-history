@@ -1,6 +1,7 @@
-package main
+package svg
 
 import (
+	"app/parser"
 	"bytes"
 	"strings"
 	"testing"
@@ -102,13 +103,13 @@ func TestToSvg(t *testing.T) {
 
 	for i, tt := range tests {
 
-		lines, err := readFile(strings.NewReader(tt.in))
+		lines, err := parser.ReadFile(strings.NewReader(tt.in))
 		if err != nil {
 			t.Fatalf("[%d] failed %v", i, err)
 		}
-		filtered := map[string][]Line{}
+		filtered := map[string][]parser.Line{}
 		for program, l := range lines {
-			filtered[program] = filter(100, time.Now())(l)
+			filtered[program] = parser.Filter(100, time.Now())(l)
 		}
 
 		buf := bytes.Buffer{}
